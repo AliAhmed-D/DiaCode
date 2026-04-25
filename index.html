@@ -180,7 +180,13 @@
 <script data-goatcounter="https://diacode-ali.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 <script>
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js');
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => console.log('Service Worker Registered!'))
+        .catch(err => console.error('Service Worker Failed!', err));
+    });
+  }
+</script>
   }
 </script>
 </body>
