@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DiaCode v2.0 - Pro System</title>
-    <link rel="stylesheet" href="style.css">
-    
 </head>
 <body>
 
@@ -146,23 +144,23 @@
             return;
         }
 
-        let message = `*تقرير DiaCode الطبي* 🩺%0A`;
-        message += `👤 المريض: ${name || 'غير مسجل'}%0A`;
-        message += `📊 التراكمي: ${hba1c || '---'}%0A`;
-        message += `⚖️ الوزن: ${weight || '---'} كجم%0A`;
+        let message = `*تقرير منصة DiaCode الطبية* 🩺%0A`;
+        message += `👤 *المريض:* ${name || 'غير مسجل'}%0A`;
+        message += `📊 *التراكمي:* ${hba1c || '---'}%0A`;
+        message += `⚖️ *الوزن:* ${weight || '---'} كجم%0A`;
         message += `---------------------------%0A`;
-        message += `📑 *سجل القراءات اليومي:*%0A`;
+        message += `📑 *سجل آخر القراءات:*%0A`;
 
-        if (logs.length === 0) {
-            message += `لا توجد قراءات مسجلة.%0A`;
-        } else {
-            logs.slice(-5).forEach((log, i) => {
-                message += `${i+1}. الوقت: ${log.time} | السكر: ${log.sugar} | الجرعة: ${log.dose}%0A`;
+        if (logs.length > 0) {
+            logs.slice(-5).forEach((log, index) => {
+                message += `${index + 1}. الوقت: ${log.time} | السكر: ${log.sugar} | الجرعة: ${log.dose}%0A`;
             });
+        } else {
+            message += `لا توجد قراءات مسجلة.%0A`;
         }
 
         message += `---------------------------%0A`;
-        message += `✅ تم الإرسال عبر نظام DiaCode الذكي.`;
+        message += `✅ تم الإرسال عبر نظام DiaCode v2.0`;
 
         window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${message}`, '_blank');
     }
