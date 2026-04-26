@@ -80,7 +80,7 @@ h3 {
     color: #8b949e;
 }
 
-input {
+input, select {
     width: 100%;
     background: var(--input);
     border: 1px solid var(--border);
@@ -88,9 +88,18 @@ input {
     padding: 12px;
     border-radius: 10px;
     box-sizing: border-box;
+    font-family: inherit;
 }
 
-input:focus {
+select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2300ff88' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C2.185 5.355 2.403 5 2.808 5h9.384c.405 0 .623.355.357.658l-4.796 5.482a.5.5 0 0 1-.722 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: left 12px center;
+}
+
+input:focus, select:focus {
     border-color: var(--primary);
     outline: none;
 }
@@ -117,6 +126,19 @@ button:hover {
     background-color: var(--whatsapp) !important;
     color: white !important;
     margin-top: 10px;
+}
+
+.btn-emergency {
+    background-color: var(--danger) !important;
+    color: white !important;
+    margin-top: 10px;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(255, 77, 77, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
 }
 
 .result-box {
