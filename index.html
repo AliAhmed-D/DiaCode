@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DiaCode v2.0 - Pro System</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#000000">
+    <link rel="apple-touch-icon" href="logo.png">
 </head>
 <body>
 
@@ -30,12 +33,13 @@
                 <input type="number" id="weight" placeholder="80">
             </div>
             <div class="input-group full-width">
-                <label>رقم واتساب الطبيب (مثال: 9647XXXXXXXX)</label>
-                <input type="text" id="docPhone" placeholder="9647726512076">
+                <label>رقم واتساب الطبيب/الطوارئ</label>
+                <input type="text" id="docPhone" placeholder="9647XXXXXXXX">
             </div>
         </div>
         <button onclick="analyzeStatus()">تحليل الحالة العامة</button>
         <button class="btn-whatsapp" onclick="sendToWhatsApp()">📲 إرسال التقرير للطبيب</button>
+        <button class="btn-emergency" onclick="sendSOS()">🚨 إرسال استغاثة طوارئ (SOS)</button>
         <div id="statusResult" class="result-box"></div>
     </div>
 
@@ -105,89 +109,64 @@
         const hba1c = document.getElementById('hba1c').value;
         const res = document.getElementById('statusResult');
         res.style.display = "block";
-        if (hba1c > 7) {
-            res.innerHTML = "⚠️ السكر التراكمي مرتفع. يرجى مراجعة الطبيب.";
-        } else {
-            res.innerHTML = "✅ وضعك الصحي مستقر حالياً.";
-        }
+        res.innerHTML = hba1c > 7 ? "⚠️ السكر التراكمي مرتفع. يرجى مراجعة الطبيب." : "✅ وضعك الصحي مستقر حالياً.";
     }
 
     function calculateAndLog() {
         const sugar = document.getElementById('currSugar').value;
         const carbs = document.getElementById('carbs').value;
         const icr = document.getElementById('icr').value;
-        const res = document.getElementById('doseResult');
-
-        if (!sugar || !carbs) {
-            alert("يرجى إدخال البيانات المطلوبة");
-            return;
-        }
+        if (!sugar || !carbs) { alert("يرجى إدخال البيانات المطلوبة"); return; }
 
         const dose = (carbs / icr).toFixed(1);
-        res.style.display = "block";
-        res.innerHTML = `💉 الجرعة المقترحة: ${dose} وحدة`;
+        document.getElementById('doseResult').style.display = "block";
+        document.getElementById('doseResult').innerHTML = `💉 الجرعة المقترحة: ${dose} وحدة`;
 
         const now = new Date();
         const timeStr = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
-
         logs.push({ time: timeStr, sugar, carbs, dose });
         updateTable();
     }
 
     function sendToWhatsApp() {
-        const name = document.getElementById('patientName').value;
         const phone = document.getElementById('docPhone').value;
-        const hba1c = document.getElementById('hba1c').value;
-        const weight = document.getElementById('weight').value;
+        if (!phone) { alert("يرجى إدخال رقم واتساب الطبيب"); return; }
 
-        if (!phone) {
-            alert("يرجى إدخال رقم واتساب الطبيب");
-            return;
-        }
-
-        let message = `*تقرير منصة DiaCode الطبية* 🩺%0A`;
-        message += `👤 *المريض:* ${name || 'غير مسجل'}%0A`;
-        message += `📊 *التراكمي:* ${hba1c || '---'}%0A`;
-        message += `⚖️ *الوزن:* ${weight || '---'} كجم%0A`;
-        message += `---------------------------%0A`;
-        message += `📑 *سجل آخر القراءات:*%0A`;
-
-        if (logs.length > 0) {
-            logs.slice(-5).forEach((log, index) => {
-                message += `${index + 1}. الوقت: ${log.time} | السكر: ${log.sugar} | الجرعة: ${log.dose}%0A`;
-            });
-        } else {
-            message += `لا توجد قراءات مسجلة.%0A`;
-        }
-
-        message += `---------------------------%0A`;
-        message += `✅ تم الإرسال عبر نظام DiaCode v2.0`;
-
+        let message = `*تقرير منصة DiaCode الطبية* 🩺%0A👤 *المريض:* ${document.getElementById('patientName').value || 'غير مسجل'}%0A📊 *التراكمي:* ${document.getElementById('hba1c').value || '---'}%0A⚖️ *الوزن:* ${document.getElementById('weight').value || '---'} كجم%0A---------------------------%0A📑 *آخر القراءات:*%0A`;
+        logs.slice(-5).forEach((log, i) => message += `${i+1}. ${log.time} | سكر: ${log.sugar} | جرعة: ${log.dose}%0A`);
+        message += `---------------------------%0A✅ عبر نظام DiaCode v2.0`;
         window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${message}`, '_blank');
     }
 
-    function clearLogs() {
-        if (confirm("هل أنت متأكد من مسح جميع القراءات؟")) {
-            logs = [];
-            updateTable();
+    // وظيفة الاستغاثة SOS
+    function sendSOS() {
+        const phone = document.getElementById('docPhone').value;
+        const name = document.getElementById('patientName').value || "مريض سكري";
+        if (!phone) { alert("يرجى إدخال رقم الطوارئ أولاً"); return; }
+
+        if (confirm("هل أنت متأكد من إرسال نداء استغاثة؟")) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const mapUrl = `https://www.google.com/maps?q=${position.coords.latitude},${position.coords.longitude}`;
+                    let msg = `*🚨 نداء استغاثة SOS* %0Aالمريض *${name}* بحاجة لمساعدة فورية! %0A📍 الموقع: ${mapUrl}`;
+                    window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${msg}`, '_blank');
+                }, () => {
+                    window.open(`https://api.whatsapp.com/send?phone=${phone}&text=*🚨 نداء استغاثة SOS* %0Aالمريض *${name}* بحاجة لمساعدة!`, '_blank');
+                });
+            }
         }
     }
 
+    function clearLogs() { if (confirm("مسح السجل؟")) { logs = []; updateTable(); } }
     updateTable();
+
+    // تسجيل Service Worker للتثبيت كـ PWA
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW failed', err));
+        });
+    }
 </script>
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#000000">
 <script data-goatcounter="https://diacode-ali.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js')
-        .then(reg => console.log('Service Worker Registered!'))
-        .catch(err => console.error('Service Worker Failed!', err));
-    });
-  }
-</script>
-  }
-</script>
 </body>
 </html>
