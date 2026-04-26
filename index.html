@@ -46,6 +46,19 @@
     <div class="card">
         <h3>💉 تسجيل قراءة وحساب الجرعة</h3>
         <div class="profile-grid">
+            <div class="input-group full-width">
+                <label>إضافة سريعة (أكلات عراقية)</label>
+                <select id="foodAssistant" onchange="addFoodCarbs()">
+                    <option value="0">--- اختر نوع الطعام ---</option>
+                    <option value="15">صمونة حجرية واحدة (15 جرام)</option>
+                    <option value="30">خبز عراقي (نصف رغيف - 30 جرام)</option>
+                    <option value="45">صحن تمن متوسط (10 ملاعق - 45 جرام)</option>
+                    <option value="20">كاسة شوربة عدس (20 جرام)</option>
+                    <option value="12">قطعة كبة برغل (12 جرام)</option>
+                    <option value="50">لفة فلافل (تقريبي - 50 جرام)</option>
+                    <option value="15">استكان شاي بسكر (15 جرام)</option>
+                </select>
+            </div>
             <div class="input-group">
                 <label>السكر الحالي (mg/dL)</label>
                 <input type="number" id="currSugar" placeholder="200">
@@ -98,6 +111,17 @@
             return '964' + cleanPhone;
         }
         return cleanPhone;
+    }
+
+    function addFoodCarbs() {
+        const foodSelect = document.getElementById('foodAssistant');
+        const carbsInput = document.getElementById('carbs');
+        const selectedValue = parseInt(foodSelect.value);
+        if (selectedValue > 0) {
+            carbsInput.value = selectedValue;
+            carbsInput.style.borderColor = "#00ff88";
+            setTimeout(() => { carbsInput.style.borderColor = ""; }, 1000);
+        }
     }
 
     function updateTable() {
@@ -158,7 +182,7 @@
         if (confirm("هل أنت متأكد من إرسال نداء استغاثة؟")) {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(position => {
-                    const mapUrl = `https://www.google.com/maps?q=${position.coords.latitude},${position.coords.longitude}`;
+                    const mapUrl = `http://maps.google.com/maps?q=${position.coords.latitude},${position.coords.longitude}`;
                     let msg = `*🚨 نداء استغاثة SOS* %0Aالمريض *${name}* بحاجة لمساعدة فورية! %0A📍 الموقع: ${mapUrl}`;
                     window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${msg}`, '_blank');
                 }, () => {
