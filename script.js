@@ -86,6 +86,14 @@ function clearLogs() {
     if (confirm("هل أنت متأكد من مسح جميع القراءات؟")) {
         logs = [];
         updateTable();
+        if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => console.log('Service Worker Registered!'))
+      .catch(err => console.log('Service Worker Record Failed', err));
+  });
+        }
+        
     }
 }
 
